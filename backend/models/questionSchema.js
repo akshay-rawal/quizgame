@@ -10,14 +10,14 @@ const questionSchema = new mongoose.Schema(
             {   
                 type: [String],
                 required: true,
-                validate: [optionsArray => optionsArray.length === 4], // Ensure there are 4 options
+                validate: (optionsArray) => optionsArray.length === 4, // Ensure there are 4 options
             
                     message:"there must be four options"
                 
             },
         ],
         correctAnswer: {
-            type: String, // Correct answer stored as a string, matching one of the options
+            type: String, 
             required: true,
             enum:['A','B','C','D']
         },

@@ -16,9 +16,12 @@ try {
             email,
             password
         });
+        console.log("Signup response:", response); // Log the successful response
         alert('signup successful please login');
         navigate('/')
+        await api.get('/session');
 } catch (error) {
+  console.error("Signup error:", error); // Log the entire error
     alert(error.response.data.message || "An error occurred during signup.");
 }
 

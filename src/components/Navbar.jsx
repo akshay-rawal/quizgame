@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import {logout} from '../store/store.js'
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
+import Leaderboard from './LeaderBoard.jsx';
 
 function Navbar(){
     const {user} = useSelector((state)=>state.user)
@@ -23,6 +23,10 @@ return (
       <Link to="/home" className="mr-4 hover:underline">
           Home
         </Link>
+        <Link to="/leaderboard" className="mr-4 hover:underline">
+          leaderboard
+        </Link>
+        
 
         {user && (
                <button onClick={handleLogout} className="hover:underline">logout</button>

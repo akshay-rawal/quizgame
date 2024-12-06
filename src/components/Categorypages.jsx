@@ -1,186 +1,200 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../utills/axios";
+import { useSelector } from "react-redux";
 
 function CategoryPage() {
+  const { token, user } = useSelector((state) => state.user);
   const { category } = useParams();
+  const navigate = useNavigate();
+
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
-  const [feedback, setFeedback] = useState({}); // State for feedback messages
-  const [showAnswers, setShowAnswers] = useState({}); // State for showing correct answers
+  const [feedback, setFeedback] = useState({});
+  const [showAnswers, setShowAnswers] = useState({});
+  const [score, setScore] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
+  const [incorrectAnswers, setIncorrectAnswers] = useState([]);
+  const [pendingQuestions, setPendingQuestions] = useState([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState([]);
 
-  // Function to fetch questions from the API
-  const fetchQuestions = async () => {
+  // Function moved above useEffect for better readability
+  const fetchData = async () => {
+    console.log("fetchData called");
+
     try {
-      const response = await api.get(`/questions/${category}`); // Fetch questions for the category
-      if (response.data && response.data.questions) {
-        setQuestions(response.data.questions); // Set questions if data exists
-      } else {
-        setQuestions([]); // No questions found
+      setLoading(true);
+      console.log("Fetching questions...");
+
+
+      // Fetch unanswered questions
+      console.log("Token in use:", token);
+
+
+      console.log("API Request URL:", `/questions/${category}/${user.userId}`);
+
+
+
+     const questionsResponse = await api.get(`/questions/${category}/${user.userId}`, 
+     
+);
+setQuestions(questionsResponse.data);
+
+      console.log("Fetched questions:", questionsResponse.data);
+
+      // Fetch user score and progress
+      const scoreResponse = await api.get(`/user-score/${user.userId}/${category}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Fetched score:", scoreResponse.data);
+      const categoryQuestions = questionsResponse.data.questions || [];
+
+      setQuestions(categoryQuestions);
+      if (scoreResponse.data.userScore) {
+        const {
+          score,
+          correctAnswer,
+          inCorrectAnswer,
+          answeredQuestions,
+          pendingAnswer,
+        } = scoreResponse.data.userScore;
+
+        setScore(score || 0);
+        setCorrectAnswers(correctAnswer || []);
+        setIncorrectAnswers(inCorrectAnswer || []);
+        setPendingQuestions(pendingAnswer || []);
+        setAnsweredQuestions(answeredQuestions || []);
       }
     } catch (error) {
-      console.error("Error fetching questions:", error);
       setError("Failed to load questions.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch questions whenever the category changes
   useEffect(() => {
-    fetchQuestions();
-  }, [category]);
+    if (!user || !token) {
+      console.log("token is missing");
+      navigate("/"); // Redirect if not authenticated
+    } else {
+      fetchData();
+    }
+  }, [category, user, token, navigate]);
 
-  // Handle submission of an answer
-  const handleSubmit = (questionIndex, selectedOption) => {
-    // Check if the question has already been submitted
-    if (submittedAnswers[questionIndex]) {
-      setFeedback((prevState) => ({
-        ...prevState,
-        [questionIndex]: "Second time not allowed",
+  const handleSubmit = async (questionIndex, selectedOption) => {
+    const questionId = questions[questionIndex]._id;
+    if (submittedAnswers[questionId]) {
+      setFeedback((prev) => ({
+        ...prev,
+        [questionId]: "You have already submitted an answer for this question.",
       }));
       return;
     }
 
-    // Check if the selected option is correct
+    try {
+      const response = await api.post("/submit", {
+        userId: user.userId,
+        questionId,
+        selectedOption,
+      });
 
-    const isCorrect = questions[questionIndex].correctAnswer === selectedOption;
-    // Update submittedAnswers and feedback
-    setSubmittedAnswers((prevState) => ({
-      ...prevState,
-      [questionIndex]: selectedOption,
-    }));
+      const { isCorrect } = response.data;
+      setFeedback((prev) => ({
+        ...prev,
+        [questionId]: isCorrect ? "Correct answer!" : "Incorrect answer.",
+      }));
 
-    setFeedback((prevState) => ({
-      ...prevState,
-      [questionIndex]: isCorrect ? "Successful" : "Unsuccessful",
-    }));
+      setSubmittedAnswers((prev) => ({
+        ...prev,
+        [questionId]: selectedOption,
+      }));
+
+      // Refresh data to update score and answered status
+      fetchData();
+    } catch (error) {
+      setFeedback((prev) => ({
+        ...prev,
+        [questionId]: "Failed to submit answer.",
+      }));
+      console.error("Error submitting answer:", error);
+    }
   };
 
-  // Handle showing or hiding the correct answer
   const handleShowAnswer = (questionIndex) => {
-    setShowAnswers((prevState) => ({
-      ...prevState,
-      [questionIndex]: !prevState[questionIndex], // Toggle show/hide
+    setShowAnswers((prev) => ({
+      ...prev,
+      [questionIndex]: !prev[questionIndex],
     }));
   };
 
-  // Render the component
   return (
     <div className="p-6 min-h-screen bg-gray-50">
-      {/* Title */}
       <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
         Questions for {category}
       </h2>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="text-center text-gray-500">Loading questions...</div>
-      )}
-
-      {/* Error State */}
+      {loading && <div className="text-center text-gray-500">Loading questions...</div>}
       {error && <div className="text-center text-red-500">{error}</div>}
 
-      {/* Questions */}
       <div className="space-y-6">
         {questions.length > 0 ? (
           questions.map((question, index) => (
-            <div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-            >
-              {/* Question Text */}
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                {question.questionText}
-              </h3>
-
-              {/* Options in Two Columns */}
+            <div key={question._id} className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-4">{question.questionText}</h3>
               <div className="grid grid-cols-2 gap-4">
-                {question.options[0] &&
-                  question.options[0].map((option, optionIndex) => {
-                      const optionLabel = String.fromCharCode(65 + optionIndex); // Convert index to A, B, C, D
-                      const isDisabled = submittedAnswers[index]; // Disable if already submitted
-                    return (
-                      <div
-                        key={optionIndex}
-                        className="flex items-center space-x-3"
-                      >
-                        <input
-                          type="radio"
-                          name={`question-${index}`} // Group radio buttons by question
-                          id={`option-${index}-${optionIndex}`}
-                          className="form-radio h-5 w-5 text-blue-600"
-                          value={optionLabel} // Set value to A, B, C, D
-                          disabled={isDisabled} // Disable if already submitted
-                        />
-                        <label
-                          htmlFor={`option-${index}-${optionIndex}`}
-                          className={`text-gray-700 ${
-                            isDisabled ? "opacity-50" : ""
-                          }`}
-                        >
-                          {optionLabel}. {option}
-                        </label>
-                      </div>
-                    );
-                  })}
+                {(question.options || []).map((option, i) => {
+                  const optionLabel = String.fromCharCode(65 + i);
+                  return (
+                    <div key={i} className="flex items-center">
+                      <input
+                        type="radio"
+                        name={`question-${index}`}
+                        id={`option-${index}-${i}`}
+                        value={optionLabel}
+                        onChange={(e) => handleSubmit(question._id, e.target.value)}
+                        disabled={answeredQuestions.includes(question._id)}
+                      />
+                      <label htmlFor={`option-${index}-${i}`} className="ml-2">
+                        {optionLabel}. {option}
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
-
-              {/* Submit Button */}
               <button
                 onClick={() => {
                   const selectedOption = document.querySelector(
                     `input[name="question-${index}"]:checked`
                   )?.value;
                   if (selectedOption) {
-                    handleSubmit(index, selectedOption); // Handle submission
+                    handleSubmit(index, selectedOption);
                   } else {
-                    alert("Please select an option before submitting!");
+                    alert("Please select an option before submitting.");
                   }
                 }}
-                className={`mt-4 px-4 py-2 text-white rounded ${
-                  submittedAnswers[index]
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
-                disabled={submittedAnswers[index]} // Disable button if already submitted
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                disabled={answeredQuestions.includes(question._id)}
               >
                 Submit
               </button>
 
-              {/* Show/Hide Correct Answer Button */}
               <button
                 onClick={() => handleShowAnswer(index)}
-                className="ml-4 px-4 py-2 text-blue-600 bg-gray-200 rounded hover:bg-gray-300"
+                className="ml-4 px-4 py-2 bg-gray-200 rounded"
               >
                 {showAnswers[index] ? "Hide Answer" : "Show Answer"}
               </button>
 
-              {/* Feedback Message */}
-              {feedback[index] && (
-                <div
-                  className={`mt-2 font-semibold ${
-                    feedback[index] === "Successful"
-                      ? "text-green-600"
-                      : "text-red-600"
-                  }`}
-                >
-                  {feedback[index]}
+              {showAnswers[index] && (
+                <div className="mt-2">
+                  <strong>Correct Answer:</strong> {question.correctAnswer}
                 </div>
               )}
 
-              {/* Correct Answer Display */}
-              {showAnswers[index] && (
-                <div className="mt-2 text-gray-700">
-                  <strong>Correct Answer:</strong> {question.correctAnswer}.
-                  {
-                    question.options[0][
-                      question.correctAnswer.charCodeAt(0) - 65
-                    ]
-                  }
-                </div>
+              {feedback[question._id] && (
+                <div className="mt-2 text-green-600">{feedback[question._id]}</div>
               )}
             </div>
           ))
@@ -189,6 +203,14 @@ function CategoryPage() {
             No questions available for this category.
           </div>
         )}
+      </div>
+
+      <div className="mt-12">
+        <h3 className="text-lg font-bold">Your Score</h3>
+        <p>Your score: {score}</p>
+        <p>Correct answers: {correctAnswers.length}</p>
+        <p>Incorrect answers: {incorrectAnswers.length}</p>
+        <p>Pending questions: {pendingQuestions.length}</p>
       </div>
     </div>
   );
