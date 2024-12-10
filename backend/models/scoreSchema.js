@@ -12,6 +12,11 @@
             required:true,
             enum:['Cinema',"General Knowledge","History","Politics"]
         },
+        totalQuestions:{
+            type:Number,
+            required:true,
+            default: 0,
+        },
         score:{
             type:Number,
             required:true,
@@ -37,6 +42,8 @@
             ref: "Question",
             default: [],
         },
+       // timeTaken: { type: Number, required: true }, // time in seconds
+
     answers:[
         {  questionId:{type:mongoose.Schema.Types.ObjectId,ref:"Question",required:true},
         
@@ -47,11 +54,19 @@
                 required:true,
                 enum:['Cinema',"General Knowledge","History","Politics"]
             },
+            feedback: {
+                type: Map,
+                of: String, // Map of questionId to feedback message
+              },
         
         
         }
 
-    ]
+    ],
+    feedback: {
+        type: Map,
+        of: String, // Map of questionId to feedback message
+      },
         
     
     

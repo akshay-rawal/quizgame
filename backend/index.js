@@ -12,6 +12,7 @@
   import submitAnswerRoutes from './routes/submitAnswerRoutes.js'
   import sessionRoutes from './routes/authRoutes/sessionRoutes.js'
   import bodyParser from "body-parser";
+  import getLeaderboard  from "./routes/question-answer/leaderboard.js";
   dotenv.config();
 
   const app = express();
@@ -51,6 +52,7 @@
   app.use("/api" ,questionRoutes)
   app.use('/api',userScore)
   app.use('/api',submitAnswerRoutes)
+  app.use('/api',getLeaderboard)
 
   const port = process.env.PORT;
   app.listen(port, () => {

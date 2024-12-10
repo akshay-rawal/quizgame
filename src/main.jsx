@@ -6,13 +6,16 @@ import { Provider } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'; 
 import store from './store/store.js'
 import SessionManager from '../utills/sessionInitializer.jsx'
+import { ThemeProvider } from './components/ThemeContext.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
  
     <Provider store={store}>
-    <Router  future={{ v7_relativeSplatPath: true }}>
+    <Router future={{ v7_startTransition: true }}>
       <SessionManager>
+        <ThemeProvider>
     <App />
+    </ThemeProvider>
     </SessionManager>
     </Router>
     </Provider>

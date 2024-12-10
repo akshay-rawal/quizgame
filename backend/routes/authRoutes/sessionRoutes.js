@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/session',authenticate, async(req,res)=>{
      try {
-           const userId = req.user?._id
+           const userId = req.userId
            if(!userId){
            return res.status(401).json({message:'unauthorized,no valid session'})
            }

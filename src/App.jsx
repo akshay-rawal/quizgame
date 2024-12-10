@@ -4,7 +4,7 @@ import Login from './components/Login'
 import Signup from './components/Signup'
 import Home from "./components/Home"
 import CategoryPage from './components/Categorypages'
-
+import Leaderboard from './components/LeaderBoard'
 
 const App = () => {
   return (
@@ -16,6 +16,7 @@ const App = () => {
     
       <Route path="/home" element={<Home />} />
       <Route path="/questions/:category" element={<CategoryPage/>} />
+      <Route path='/leaderboard' element={<Leaderboard/>}/>
 
     </Routes>
 

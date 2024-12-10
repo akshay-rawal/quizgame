@@ -3,6 +3,8 @@ import { insertQuestions } from './insertQuestions.js';
 import Question from '../../models/questionSchema.js'; // Assuming the Question model is here
 import Score from '../../models/scoreSchema.js';
 import authenticate from '../../middleware/authenticate.js';
+import { initializeUserScore } from '../../utills/userScoreInitial.js';
+
 const router = express.Router();
 
 // Route to trigger the insertion of a question (for testing purposes)
@@ -28,24 +30,29 @@ router.get("/questions/:category/:userId",authenticate, async (req, res) => {
     return res.status(403).json({ message: "You are not authorized to access these questions." });
   }
 
-  console.log("Category requested:", category, "UserId:", userId);
-
-  
-
   try {
+    let userScore = await Score.findOne({ category, userId });
+    if (!userScore) {
+      console.log("No user score found, initializing score...");
+      userScore = await initializeUserScore(userId, category);
+      // Save the initialized user score to the database
+      await userScore.save();
+    }
     const questions = await Question.find({ category });
     console.log("Questions found:", questions);
-    const userScore = await Score.findOne({ category, userId });
+  
 
     const answeredQuestionIds = userScore
-      ? userScore.answers.map((answer) => answer.questionId.toString())
-      : [];
+    ? userScore.answeredQuestions.map((id) => id.toString())
+    : [];
 
-    const unansweredQuestions = questions.filter(
-      (q) => !answeredQuestionIds.includes(q._id.toString())
-    );
-
-    return res.status(200).json({ questions: unansweredQuestions });
+  const questionsWithStatus = questions.map((q) => ({
+    ...q._doc, // Spread original question data
+    isAnswered: answeredQuestionIds.includes(q._id.toString()), // Add isAnswered flag
+  }));
+  const pendingAnswerCount = userScore.pendingAnswer ? userScore.pendingAnswer.length : 0;
+  return res.status(200).json({ questions: questionsWithStatus,
+    pendingAnswerCount });
   } catch (error) {
     console.error("Error fetching questions:", error);
     return res.status(500).json({ message: "Error fetching questions from the database." });

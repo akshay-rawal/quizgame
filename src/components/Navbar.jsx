@@ -1,45 +1,53 @@
-
-import { useDispatch, useSelector } from 'react-redux'
-import {logout} from '../store/store.js'
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/store.js';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import Leaderboard from './LeaderBoard.jsx';
+import { useTheme } from './ThemeContext.jsx';
 
-function Navbar(){
-    const {user} = useSelector((state)=>state.user)
+function Navbar() {
+    const { user } = useSelector((state) => state.user);
     const dispatch = useDispatch();
     const navigate = useNavigate();
- 
+    const { isDark, toggleTheme } = useTheme();
 
+    const handleLogout = () => {
+        dispatch(logout());
+        navigate('/');
+    };
 
-const handleLogout = ()=>{
-    dispatch(logout());
-    navigate('/')
-}
+    return (
+        <nav
+            className={`p-4 flex justify-between items-center ${
+                isDark ? 'bg-gray-900 text-white' : 'bg-blue-500 text-black'
+            }`}
+        >
+            <div>
+                <Link to="/leaderboard" className="mr-4 hover:underline">
+                    Leaderboard
+                </Link>
 
-return (
-    <nav className="bg-blue-500 p-4 text-white flex justify-between">
-      <div>
-      <Link to="/home" className="mr-4 hover:underline">
-          Home
-        </Link>
-        <Link to="/leaderboard" className="mr-4 hover:underline">
-          leaderboard
-        </Link>
-        
-
-        {user && (
-               <button onClick={handleLogout} className="hover:underline">logout</button>
-        )}
-
-      </div>
-      <span>{user?.username}</span>
-
-
-
+                {user && (
+                    <button
+                        onClick={handleLogout}
+                        className="hover:underline"
+                    >
+                        Logout
+                    </button>
+                )}
+            </div>
+            <div className="flex items-center">
+                <span className="mr-4">{user?.username}</span>
+                <button
+                    onClick={toggleTheme}
+                    className={`py-2 px-4 rounded-md focus:outline-none ${
+                        isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                    }`}
+                >
+                    {isDark ? 'Light Mode' : 'Dark Mode'}
+                </button>
+            </div>
         </nav>
-
-)
-
+    );
 }
-export default Navbar
+
+export default Navbar;
