@@ -21,6 +21,8 @@ router.get('/insert-questions', async (req, res) => {
 // Route to get questions by category (e.g., 'Cinema')
 router.get("/questions/:category/:userId",authenticate, async (req, res) => {
   const { category,userId} = req.params;
+  const page = parseInt(req.query.page)||1;
+  const limit = parseInt(req.query.limit) || 5;
   console.log("User ID from token:", req.userId);
   console.log("Requested User ID:", userId);
   console.log("Category requested:", category);
@@ -38,7 +40,15 @@ router.get("/questions/:category/:userId",authenticate, async (req, res) => {
       // Save the initialized user score to the database
       await userScore.save();
     }
-    const questions = await Question.find({ category });
+
+     const totalQuestions = await Question.countDocuments({category})
+     const skip = (page-1) * limit
+
+
+
+    const questions = await Question.find({ category })
+    .skip(skip)
+    .limit(limit);
     console.log("Questions found:", questions);
   
 
@@ -51,8 +61,8 @@ router.get("/questions/:category/:userId",authenticate, async (req, res) => {
     isAnswered: answeredQuestionIds.includes(q._id.toString()), // Add isAnswered flag
   }));
   const pendingAnswerCount = userScore.pendingAnswer ? userScore.pendingAnswer.length : 0;
-  return res.status(200).json({ questions: questionsWithStatus,
-    pendingAnswerCount });
+  return res.status(200).json({ questions: questionsWithStatus, pendingAnswerCount, totalQuestions, totalpages: Math.ceil(totalQuestions / limit), currentPage: page });
+
   } catch (error) {
     console.error("Error fetching questions:", error);
     return res.status(500).json({ message: "Error fetching questions from the database." });

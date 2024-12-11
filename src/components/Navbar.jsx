@@ -39,9 +39,8 @@ function Navbar() {
                 <span className="mr-4">{user?.username}</span>
                 <button
                     onClick={toggleTheme}
-                    className={`py-2 px-4 rounded-md focus:outline-none ${
-                        isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'
-                    }`}
+                    className="py-2 px-4 rounded-md focus:outline-none bg-white text-black dark:bg-gray-800 dark:text-white"
+
                 >
                     {isDark ? 'Light Mode' : 'Dark Mode'}
                 </button>

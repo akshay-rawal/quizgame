@@ -14,10 +14,10 @@ export const ThemeProvider = ({ children }) => {
         const body = document.body;
         if (isDark) {
             body.classList.add("bg-gray-800", "text-white"); // Dark mode classes
-            body.classList.remove("bg-white", "text-black"); // Remove light mode classes
+           
         } else {
             body.classList.add("bg-white", "text-black"); // Light mode classes
-            body.classList.remove("bg-gray-800", "text-white"); // Remove dark mode classes
+          
         }
     }, [isDark]);
 
