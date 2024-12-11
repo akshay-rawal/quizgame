@@ -170,7 +170,9 @@ function CategoryPage() {
 
                 <button
                   onClick={() => handleShowAnswer(index)}
-                  className={`ml-4 px-4 py-2 rounded ${submittedAnswers[question._id] ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-gray-200 dark:bg-gray-600 dark:text-white hover:bg-gray-300"}`}
+                  className={`ml-4 px-4 py-2 rounded ${submittedAnswers[question._id] ? "bg-gray-300 text-gray-500 cursor-not-allowed" : 
+                    `${isDark ? "bg-gray-400 text-black hover:bg-gray-300" : "bg-gray-200 dark:bg-gray-800 dark:text-white hover:bg-gray-300"}`
+                  }`}
                   disabled={submittedAnswers[question._id]}
                 >
                   {showAnswers[index] ? "Hide Answer" : "Show Answer"}
@@ -191,13 +193,13 @@ function CategoryPage() {
       </div>
 
       <div className="flex justify-end items-center mt-6 space-x-2">
-        <button onClick={prevPage} disabled={currentPage === 1} className="px-6 py-2 bg-gray-300 dark:bg-red-700 rounded disabled:opacity-50">
-          Prev...
+        <button onClick={prevPage} disabled={currentPage === 1} className="px-6 py-2 rounded disabled:opacity-50">
+          Prev
         </button>
         <p>
           Page {currentPage} of {totalPage}
         </p>
-        <button onClick={nextPage} disabled={currentPage >= totalPage} className="px-6 py-2 bg-gray-300 dark:bg-red-700 rounded disabled:opacity-50">
+        <button onClick={nextPage} disabled={currentPage >= totalPage} className="px-6 py-2 rounded disabled:opacity-50">
           Next
         </button>
       </div>

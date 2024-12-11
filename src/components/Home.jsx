@@ -22,13 +22,16 @@ const {isDark} = useTheme();
         {categories.map((category) => (
           <div
             key={category}
-            className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-105 "
+            className={`${
+              isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'
+            } p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-105`} 
             onClick={() => handleCategorySelect(category)}
           >
             <h2 className="text-xl font-bold mb-4 text-center dark:text-blue-400 text-blue-600">
               {category}
             </h2>
-            <p className="text-center text-gray-500 dark:text-gray-400">
+            <p className={`text-center text-gray-500 dark:text-gray-400 ${
+              isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
               Click to explore questions
             </p>
           </div>
