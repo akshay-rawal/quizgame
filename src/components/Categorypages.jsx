@@ -116,8 +116,8 @@ function CategoryPage() {
   };
 
   return (
-    <div className={`p-6 min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
+    <div className={`p-6 min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'} flex flex-col sm:flex-wrap`}>
+      <h2 className="text-2xl sm:text-2xl font-bold mb-6 text-center text-blue-700">
         Questions for {category}
       </h2>
       {loading && <div className="text-center text-gray-500 dark:text-gray-400">Loading questions...</div>}
@@ -127,9 +127,9 @@ function CategoryPage() {
           questions.map((question, index) => {
             const isAnswered = answeredQuestions.includes(question._id);
             return (
-              <div key={question._id} className={`p-6 rounded-lg shadow-md ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
+              <div key={question._id} className={`p-6 rounded-lg shadow-md ${isDark ? 'bg-gray-800 text-white' : 'bg-white text-black'} flex flex-col sm:flex-row gap-4 sm:gap-8`}>
                 <h3 className="text-lg font-semibold mb-4">{question.questionText}</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   {question.options[0].map((option, i) => {
                     const optionLabel = String.fromCharCode(65 + i);
                     return (
@@ -192,7 +192,7 @@ function CategoryPage() {
         )}
       </div>
 
-      <div className="flex justify-end items-center mt-6 space-x-2">
+      <div className="w-full flex justify-end items-center mt-6 space-x-2">
         <button onClick={prevPage} disabled={currentPage === 1} className="px-6 py-2 rounded disabled:opacity-50">
           Prev
         </button>
@@ -204,7 +204,7 @@ function CategoryPage() {
         </button>
       </div>
 
-      <div className="mt-12">
+      <div className="mt-12 w-full">
         <h3 className="text-lg font-bold dark:text-white">Your Score</h3>
         <p className={isDark ? "text-gray-200" : "text-black"}>Your score: {score}</p>
         <p className={isDark ? "text-gray-200" : "text-black"}>Correct answers: {correctAnswers.length}</p>

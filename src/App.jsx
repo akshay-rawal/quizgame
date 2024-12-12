@@ -2,7 +2,7 @@ import React from 'react'
 import { Routes,Route } from 'react-router-dom'
 import Login from './components/Login'
 import Signup from './components/Signup'
-import Home from "./components/Home"
+import Home from './components/home/Home'
 import CategoryPage from './components/Categorypages'
 import Leaderboard from './components/LeaderBoard'
 

@@ -26,14 +26,14 @@ const Leaderboard = () => {
     <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">
       Leaderboard
     </h2>
-    <table className={`min-w-full table-auto shadow-md rounded-lg ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
+    <table className={`min-w-full table-auto shadow-md rounded-lg  max-w-full overflow-x-auto ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
       <thead>
         <tr className={`bg-gray-200 text-left ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-50 text-black'} `}>
-          <th className="px-4 py-2">Category</th>
-          <th className="px-4 py-2">Total Score</th>
-          <th className="px-4 py-2">Correct Answers</th>
-          <th className="px-4 py-2">Incorrect Answers</th>
-          <th className="px-4 py-2">Pending Questions</th>
+          <th className="px-4 py-2  text-sm sm:text-base">Category</th>
+          <th className="px-4 py-2  text-sm sm:text-base">Total Score</th>
+          <th className="px-4 py-2  text-sm sm:text-base">Correct Answers</th>
+          <th className="px-4 py-2  text-sm sm:text-base">Incorrect Answers</th>
+          <th className="px-4 py-2  text-sm sm:text-base">Pending Questions</th>
         </tr>
       </thead>
       <tbody>
@@ -42,7 +42,7 @@ const Leaderboard = () => {
             <tr key={category._id} className={`${
               isDark ? "bg-gray-300 text-black" : "bg-gray-200 text-black"
             }`}>
-              <td className="px-4 py-2">{category._id}</td>
+              <td className="px-4 py-2 ">{category._id}</td>
               <td className="px-4 py-2">{category.totalScore}</td>
               <td className="px-4 py-2">{category.correctAnswers}</td>
               <td className="px-4 py-2">{category.incorrectAnswers}</td>
